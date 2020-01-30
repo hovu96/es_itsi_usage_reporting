@@ -70,7 +70,7 @@
       <single>
         <title>Core License Size</title>
         <search>
-          <query>index=_internal host=ip-172-31-26-49 source=*license_usage.log* type="RolloverSummary" earliest=-30d@d
+          <query>index=_internal source=*license_usage.log* type="RolloverSummary" earliest=-30d@d
     | bin _time span=1d 
     | dedup _time stack
     | eval stacksz=stacksz/1024/1024/1024
