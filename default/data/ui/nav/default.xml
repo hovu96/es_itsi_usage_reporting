@@ -1,0 +1,4 @@
+<nav>
+    <view name="overview" default="true" />
+    <view name="configure" />
+</nav>

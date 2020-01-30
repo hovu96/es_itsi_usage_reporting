@@ -1,0 +1,7 @@
+#saveRow .dashboard-panel {
+    background-color: transparent;
+}
+
+#index_template {
+    display: none;
+}
