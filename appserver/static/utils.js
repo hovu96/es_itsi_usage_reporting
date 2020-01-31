@@ -2,7 +2,7 @@ const appName = window.location.pathname.match(/..-..\/app\/(?<app>[^\/]+)/).gro
 
 define([
     'underscore',
-    "../../static/app/" + appName + "/modal.js",
+    Splunk.util.make_url(`/static/app/${appName}/modal.js`),
 ], function (_, Modal) {
     return function () {
         const capitalize = (s) => {
