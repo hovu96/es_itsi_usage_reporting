@@ -1,4 +1,5 @@
-<nav>
+
+<nav search_view="search" color="#F99D1C">
     <view name="overview" default="true" />
     <view name="configure" />
 </nav>
