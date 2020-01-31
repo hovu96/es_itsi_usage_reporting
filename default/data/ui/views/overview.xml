@@ -5,8 +5,8 @@
 | bin _time span=1d
 | stats sum(b) AS b by idx _time
 | eval gb=b/1024/1024/1024
-| eval es = if([| rest /servicesNS/nobody/es_itsi_usage_reporting/properties/app/reporting/es_indexes | fields value | makemv delim="," value | mvexpand value | rename value as idx | format | fields search],1,0)
-| eval itsi = if([| rest /servicesNS/nobody/es_itsi_usage_reporting/properties/app/reporting/itsi_indexes | fields value | makemv delim="," value | mvexpand value | rename value as idx | format | fields search],1,0)
+| eval es = if([| rest /servicesNS/nobody/es_itsi_usage_reporting/properties/app/reporting/es_indexes | fields value | makemv delim="," value | mvexpand value | rename value as idx | format | fields search | eval search=if(search=="NOT ()","1==0",search) ],1,0)
+| eval itsi = if([| rest /servicesNS/nobody/es_itsi_usage_reporting/properties/app/reporting/itsi_indexes | fields value | makemv delim="," value | mvexpand value | rename value as idx | format | fields search | eval search=if(search=="NOT ()","1==0",search) ],1,0)
 | eval app = case(es==1 and itsi==1,"es &amp; itsi", es==1 and itsi==0,"es", es==0 and itsi==1,"itsi",1==1,"core_only")
 | stats sum(gb) AS gb by app _time</query>
   </search>
