@@ -3,7 +3,7 @@ const appName = window.location.pathname.match(/..-..\/app\/(?<app>[^\/]+)/).gro
 require([
     "jquery",
     "splunkjs/splunk",
-    "/static/app/" + appName + "/utils.js",
+    "../../static/app/" + appName + "/utils.js",
     "splunkjs/ready!"
 ], function (
     $,
