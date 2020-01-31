@@ -2,7 +2,7 @@ const appName = window.location.pathname.match(/..-..\/app\/(?<app>[^\/]+)/).gro
 
 define([
     'underscore',
-    "/static/app/" + appName + "/modal.js"
+    "../../static/app/" + appName + "/modal.js",
 ], function (_, Modal) {
     return function () {
         const capitalize = (s) => {
