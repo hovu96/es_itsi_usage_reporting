@@ -1,8 +1,8 @@
 <form stylesheet="overview.css">
   <label>Overview</label>
   <search id="bytes_per_day_per_app">
-    <query>index=_internal source=*license_usage.log* type="Usage"
-| bin _time span=1d
+    | tstats sum(License_Usage.b) as b from datamodel=License_Usage.License_Usage by License_Usage.idx _time span=1d
+    | rename License_Usage.idx as idx
 | stats sum(b) AS b by idx _time
 | eval gb=b/1024/1024/1024
 | eval es = if([| rest /servicesNS/nobody/es_itsi_usage_reporting/properties/app/reporting/es_indexes | fields value | makemv delim="," value | mvexpand value | rename value as idx | format | fields search | eval search=if(search=="NOT ()","1==0",search) ],1,0)
