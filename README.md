@@ -18,6 +18,8 @@ You may check if you see results with following search:
 
 Install the app, use "configure" page to assign indexes used for ES or ITSI. The page will display all indexes on first usage or by clicking "Auto Add Indexes" button. 
 
+"Auto-Add Indexes" will only work, if nothing is selected yet or all indexes removed. So if you want to start over, just remove all and click on "Auto-Add Indexes"
+
 If you prefer not to use the configuration gui you may also manually  add a comma separated list (only comma, no space) to the *"reporting"* stanza in *local/app.conf*:
 
 `[reporting]`
@@ -27,6 +29,11 @@ If you prefer not to use the configuration gui you may also manually  add a comm
 `es_indexes = notable,main,dns`
 
 `core_only_indexes = test,weather`
+
+This app will install an accelerated datamodel "License Usage". License logs are otherwise only kept for the last 30 days.  The constarints of the datamodel are following: 
+`index=_internal source="*license_usage.log" sourcetype=splunkd type="Usage"`
+
+Usage log also shows the "default" index. This is by default the same as  "main" or assigned by "defaultDatabase" setting. The index list macro will add it to the corresponding index if the setting exists.  
 
 ## Support
 
