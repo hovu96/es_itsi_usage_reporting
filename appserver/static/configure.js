@@ -129,8 +129,8 @@ require([
             const summary_index_name = await propertiesEndpoint.getAsync('macros/summary_index_name/definition');
             $("splunk-text-input[name=\"summary_index_name\"]").attr('value', summary_index_name.data);
 
-            const summary_search = await savedEndpoint.getAsync('searches/summarize_license_usage');
-            const summarySearchEnabled = summary_search.data.entry[0].content.is_scheduled;
+            const summarySearch = await savedEndpoint.getAsync('searches/summarize_license_usage');
+            const summarySearchEnabled = summarySearch.data.entry[0].content.is_scheduled;
             $("splunk-radio-input[name=\"summary_indexing_enabled\"]").attr('value', summarySearchEnabled ? "1" : "0");
 
         }
@@ -175,21 +175,48 @@ require([
             subtitle: "Please wait."
         });
         try {
-            const summary_search = await savedEndpoint.getAsync('searches/summarize_license_usage');
-            const summarySearchWasEnabled = summary_search.data.entry[0].content.is_scheduled;
+            await propertiesEndpoint.postAsync('macros/summary_index_name/definition', {
+                "value": $("splunk-text-input[name=\"summary_index_name\"]").attr('value')
+            });
+
+            const summarySearch = await savedEndpoint.getAsync('searches/summarize_license_usage');
+
             const enableSummarySearch = $("splunk-radio-input[name=\"summary_indexing_enabled\"]").attr('value') == "1";
-            if (!summarySearchWasEnabled && enableSummarySearch) {
-                const results = await Utils.searchAsync("search index=`summary_index_name` search_name=\"summarize_license_usage\" | stats latest(_time) as last_summary | eval no_summaries_in_days = (now() - last_summary) / 60 / 60 / 24 | table no_summaries_in_days");
+            if (enableSummarySearch) {
+                const results = await Utils.searchAsync(
+                    "search index=`summary_index_name` search_name=\"summarize_license_usage\" | stats latest(_time) as last_summary | eval no_summaries_in_days = (now() - last_summary) / 60 / 60 / 24 | table no_summaries_in_days", {
+                    "earliest_time": `-30@d`,
+                    "latest_time": "now",
+                });
+                var doBackfillHours = 0;
+                if (results.rows > 0) {
                 const noSummariesSinceDays = Math.round(results.rows[0][0] * 100) / 100;
                 if (noSummariesSinceDays > 0.09) {
                     if (confirm(`No summaries found for last ${noSummariesSinceDays} days.\n\nDo you want to backfill the summary index now?`)) {
-                        const noSummariesSinceHours = Math.round(noSummariesSinceDays * 24);
-                        await Utils.searchAsync("savedsearch summarize_license_usage", {
-                            "earliest_time": `-${noSummariesSinceHours}h@d`,
-                            "latest_time": "@h",
-                        });
+                            doBackfillHours = Math.round(noSummariesSinceDays * 24);
+                        } else {
+                            return;
+                        }
+                    }
+                } else {
+                    if (confirm(`No summaries found.\n\nDo you want to backfill the summary index now?`)) {
+                        doBackfillHours = 24 * 30;
                     } else {
                         return;
+                    }
+                }
+                if (doBackfillHours > 0) {
+                    const backfillProgressIndicator = Utils.newLoadingIndicator({
+                        title: "Performing Backfill ...",
+                        subtitle: "Please wait."
+                    });
+                    try {
+                        await Utils.searchAsync("savedsearch summarize_license_usage", {
+                            "earliest_time": `-${doBackfillHours}h@d`,
+                            "latest_time": "@h",
+                        });
+                    } finally {
+                        backfillProgressIndicator.hide();
                     }
                 }
             }
@@ -219,10 +246,6 @@ require([
             });
             await propertiesEndpoint.postAsync('app/reporting/core_only_indexes', {
                 "value": coreOnlyIndexes.join(",")
-            });
-
-            await propertiesEndpoint.postAsync('macros/summary_index_name/definition', {
-                "value": $("splunk-text-input[name=\"summary_index_name\"]").attr('value')
             });
 
             await savedEndpoint.postAsync('searches/summarize_license_usage', {
