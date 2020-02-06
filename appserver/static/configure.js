@@ -43,7 +43,7 @@ require([
     };
 
     const autoAddIndexes = async function () {
-        const results = await Utils.searchAsync("eventcount summarize = 0 index =* | fields index | sort - index");
+        const results = await Utils.searchAsync("eventcount summarize=0 index=* | fields index | sort - index");
         const indexNames = results.rows.map(function (row) {
             return row[0];
         })
