@@ -104,12 +104,15 @@ define([
                         return test;
                 }
             },
-            searchAsync: function () {
+            searchAsync: function (query, params) {
+                if (!params) {
+                    params = {};
+                }
                 const service = this.createService();
                 return new Promise((resolve, reject) => {
                     service.oneshotSearch(
-                        "eventcount summarize=0 index=* | fields index",
-                        {},
+                        query,
+                        params,
                         function (err, results) {
                             if (err) {
                                 reject(err);

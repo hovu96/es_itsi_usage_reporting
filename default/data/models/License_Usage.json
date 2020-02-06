@@ -12,6 +12,7 @@
             "objectName": "License_Usage",
             "displayName": "License Usage",
             "parentName": "BaseEvent",
+            "comment": "",
             "fields": [
                 {
                     "fieldName": "b",
@@ -26,30 +27,6 @@
                     "comment": ""
                 },
                 {
-                    "fieldName": "h",
-                    "owner": "License_Usage",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "h",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "i",
-                    "owner": "License_Usage",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "i",
-                    "comment": ""
-                },
-                {
                     "fieldName": "idx",
                     "owner": "License_Usage",
                     "type": "string",
@@ -59,18 +36,6 @@
                     "hidden": false,
                     "editable": true,
                     "displayName": "idx",
-                    "comment": ""
-                },
-                {
-                    "fieldName": "st",
-                    "owner": "License_Usage",
-                    "type": "string",
-                    "fieldSearch": "",
-                    "required": false,
-                    "multivalue": false,
-                    "hidden": false,
-                    "editable": true,
-                    "displayName": "st",
                     "comment": ""
                 },
                 {
@@ -122,9 +87,10 @@
                     "comment": ""
                 }
             ],
+            "calculations": [],
             "constraints": [
                 {
-                    "search": "index=_internal source=\"*license_usage.log\" sourcetype=splunkd type=\"Usage\"",
+                    "search": "index=`summary_index_name` search_name=\"summarize_license_usage\"",
                     "owner": "License_Usage"
                 }
             ],

@@ -16,6 +16,34 @@
         </div>
       </html>
     </panel>
+    <panel>
+      <title>Summary Indexing and data model</title>
+      <html>
+        <p>
+          License usage logs are only kept for <b>30 days </b> by default. In order to report a longer period, we will create 
+          a scheduled search (hourly) and save the data to the summary index. Summary indexing will also increase the performance of the license usage dashboard. 
+        </p>
+        <li> Decide whether you want to use a scheduled search (recommended)</li>
+        <li> Choose the name of an (existing) index to use for a license usage summary. Default is "summary".  You can create a new index for this. If you want to create a new index, go to -> <i>Settings / Indexes / New Index</i></li>
+        <li> If you choose <b>not</b> to use the summary index, the report will only cover last 30 days and will take more time to run. </li>
+        <li> If you prefer to accelerate the datamodel, go to -> <i> Settings / Datamodels</i></li>
+        <li> If you already have a summary index, you will need to adapt the datamodel search accordingly. </li>
+     </html>
+      <html>
+        <div class="form-horizontal">
+          <splunk-control-group label="Scheduled Search" help="">
+            <splunk-radio-input name="summary_indexing_enabled" value="0">
+                <option value="1">Enable</option>
+                <option value="0">Disable</option>
+            </splunk-radio-input>
+          </splunk-control-group>
+          <splunk-control-group label="Summary Index" help="">
+            <splunk-text-input name="summary_index_name">
+            </splunk-text-input>
+          </splunk-control-group>
+        </div>
+      </html>
+    </panel>
   </row>
   <row id="saveRow">
     <panel>
