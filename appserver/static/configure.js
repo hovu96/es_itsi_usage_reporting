@@ -1,9 +1,7 @@
-const appName = window.location.pathname.match(/..-..\/app\/(?<app>[^\/]+)/).groups.app;
-
 require([
     "jquery",
     "splunkjs/splunk",
-    Splunk.util.make_url(`/static/app/${appName}/utils.js`),
+    Splunk.util.make_url(`/static/app/es_itsi_usage_reporting/utils.js`),
     "splunkjs/ready!"
 ], function (
     $,
