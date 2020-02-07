@@ -29,15 +29,18 @@ require([
                 <option value="itsi_es">ES &amp; ITSI</option>
                 <option value="core_only">Core Only</option>
             </splunk-radio-input>
-            <button class="removeIndex" style="margin-left: 1.8em;" class="btn">Remove</button>
+            <button id="remove-index-${indexName}" class="removeIndex" style="margin-left: 1.8em;" class="btn">Remove</button>
         </splunk-control-group>
         `);
 
         e.appendTo(container);
 
-        $("button.removeIndex", e).click(function () {
-            e.remove();
-        });
+        setTimeout(function () {
+            const iddd = `#remove-index-${indexName}`;
+            $(iddd).click(function () {
+                e.remove();
+            });
+        }, 1);
     };
 
     const autoAddIndexes = async function () {
