@@ -43,7 +43,17 @@ require([
     };
 
     const autoAddIndexes = async function () {
-        const results = await Utils.searchAsync("eventcount summarize=0 index=* | fields index | sort - index");
+        const results = await Utils.searchAsync(`
+        search index=_internal source=*license_usage.log type=usage
+        | stats values(idx) as idx
+        |append[search earliest=-1h index=_internal source=*license_usage.log type=usage
+        | stats  values(idx) as idx]
+        |mvexpand idx
+        |dedup idx`, {
+            "earliest_time": `-30d@d`,
+            "latest_time": "now",
+            "sample_ratio": "1000",
+        });
         const indexNames = results.rows.map(function (row) {
             return row[0];
         })
@@ -190,9 +200,9 @@ require([
                 });
                 var doBackfillHours = 0;
                 if (results.rows > 0) {
-                const noSummariesSinceDays = Math.round(results.rows[0][0] * 100) / 100;
-                if (noSummariesSinceDays > 0.09) {
-                    if (confirm(`No summaries found for last ${noSummariesSinceDays} days.\n\nDo you want to backfill the summary index now?`)) {
+                    const noSummariesSinceDays = Math.round(results.rows[0][0] * 100) / 100;
+                    if (noSummariesSinceDays > 0.09) {
+                        if (confirm(`No summaries found for last ${noSummariesSinceDays} days.\n\nDo you want to backfill the summary index now?`)) {
                             doBackfillHours = Math.round(noSummariesSinceDays * 24);
                         } else {
                             return;
