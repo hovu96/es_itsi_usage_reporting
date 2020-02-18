@@ -25,16 +25,9 @@ If you prefer not to use the configuration gui you may also manually  add a comm
 For better performance the app will use a summary index and the data model. If you use a summary index for licensing data already you may change the data model configuration to access your data. You may need to adapt the field names accordingly.  
 
 Scheduled search for the summary index should be enabled. If you change the name ot the summary index, make sure the index really exists. 
+Scheduled search is called summarize_license_usage and will run once an hour by default and search the last hour. 
 
-`[reporting]`
-
-`itsi_indexes = os,os_metrics,db_metrics`
-
-`es_indexes = notable,main,dns`
-
-`core_only_indexes = test,weather`
- 
-
+Data model is called "License Usage" and can be accelerated if needed. Basically it just refers to the summary index and acts as an abstraction layer if you want to use your existing configuration. 
 
 ## Support
 
