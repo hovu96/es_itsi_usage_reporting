@@ -1,4 +1,4 @@
-const appName = "es_itsi_usage_reporting";
+const appName = window.location.pathname.match(/..-..\/app\/(?<app>[^\/]+)/).groups.app;
 
 define([
     'underscore',
