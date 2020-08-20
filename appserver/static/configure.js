@@ -45,21 +45,7 @@ require([
         }, 1);
     };
 
-    const autoAddIndexes = async function () {
-        const results = await Utils.searchAsync(`
-        search index=_internal source=*license_usage.log type=usage
-        | stats values(idx) as idx
-        |append[search earliest=-1h index=_internal source=*license_usage.log type=usage
-        | stats  values(idx) as idx]
-        |mvexpand idx
-        |dedup idx`, {
-            "earliest_time": `-30d@d`,
-            "latest_time": "now",
-            "sample_ratio": "1000",
-        });
-        const indexNames = results.rows.map(function (row) {
-            return row[0];
-        })
+    const addIndexes = function (indexNames) {
         const itsiInstalled = indexNames.filter(function (indexName) {
             return indexName == "itsi_summary";
         }).length > 0;
@@ -79,6 +65,38 @@ require([
         indexNames.forEach(function (indexName) {
             addIndex(indexName, value);
         });
+    };
+
+    const autoAddIndexesBasedOnInternalLog = async function () {
+        const results = await Utils.searchAsync(`
+        search index=_internal source=*license_usage.log type=usage
+        | stats values(idx) as idx
+        |append[search earliest=-1h index=_internal source=*license_usage.log type=usage
+        | stats  values(idx) as idx]
+        |mvexpand idx
+        |dedup idx`, {
+            "earliest_time": `-30d@d`,
+            "latest_time": "now",
+            "sample_ratio": "1000",
+        });
+        const indexNames = results.rows.map(function (row) {
+            return row[0];
+        })
+        addIndexes(indexNames);
+    };
+
+    const autoAddIndexesBasedOnRESTCall = async function () {
+        const results = await Utils.searchAsync(`
+            rest /services/data/indexes count=0
+            | search NOT title=_*
+            | table title
+            | rename title as idx
+            | dedup idx`
+        );
+        const indexNames = results.rows.map(function (row) {
+            return row[0];
+        })
+        addIndexes(indexNames);
     };
 
     (async function () {
@@ -167,18 +185,45 @@ require([
     });
 
     $("#autoAddButton").click(async function () {
-        const progressIndicator = Utils.newLoadingIndicator({
-            title: "Auto-Detecting ...",
-            subtitle: "Please wait."
-        });
-        try {
-            await autoAddIndexes();
-        }
-        catch (err) {
-            Utils.showErrorDialog(null, err);
-        }
-        finally {
-            progressIndicator.hide();
+
+        while (true) {
+            const choice = prompt(`There are two ways of determining the list of indexes.\n\n1. Asking the Indexers for the names of indexes currently configured (fast, requires REST permissions & network access to all Indexers).\n\n2. Searching for index names in the internal license usage log (slow, not super-accurate due to event sampling)\n\n Please enter either "rest" or "search".`);
+
+            if (choice == "rest") {
+                const progressIndicator = Utils.newLoadingIndicator({
+                    title: "Auto-Detecting indexes ('rest' mode) ...",
+                    subtitle: "Please wait."
+                });
+                try {
+                    await autoAddIndexesBasedOnRESTCall();
+                }
+                catch (err) {
+                    Utils.showErrorDialog(null, err);
+                }
+                finally {
+                    progressIndicator.hide();
+                }
+            }
+            else if (choice == "search") {
+                const progressIndicator = Utils.newLoadingIndicator({
+                    title: "Auto-Detecting indexes ('search' mode) ...",
+                    subtitle: "Please wait. This may take a couple of minutes."
+                });
+                try {
+                    await autoAddIndexesBasedOnInternalLog();
+                }
+                catch (err) {
+                    Utils.showErrorDialog(null, err);
+                }
+                finally {
+                    progressIndicator.hide();
+                }
+            }
+            else if (!choice || choice == "") {
+            } else {
+                continue;
+            }
+            break;
         }
     });
 

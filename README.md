@@ -12,7 +12,7 @@ License usage logs are only kept for 30 days by default. In order to report a lo
 
 Install the app, use "configure" page to assign indexes used for ES or ITSI. The page will display all indexes on first usage or by clicking "Auto Add Indexes" button.
 
-"Auto-Add Indexes" will only work, if nothing is selected yet or all indexes removed. So if you want to start over, just remove all and click on "Auto-Add Indexes". Only indexes present in the licence usage log will appear here, so if you miss any, feel free to add those using "add index" button.
+"Auto-Add Indexes" will only work, if nothing is selected yet or all indexes removed. So if you want to start over, just remove all and click on "Auto-Add Indexes". There are two mode for auto-detection (*rest* and *search*): *Rest* reaches out to indexers and ask for the indexes currently configures, *search* samples indexes appearching in licence usage log, so if you miss any, feel free to add those using "add index" button.
 
 If you prefer not to use the configuration gui you may also manually add a comma separated list (only comma, no space) to the *"reporting"* stanza in *local/app.conf*:
 
