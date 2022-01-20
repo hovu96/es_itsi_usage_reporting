@@ -5,7 +5,7 @@
     | tstats sum(License_Usage.b) as b from datamodel=License_Usage.License_Usage by License_Usage.idx _time span=1d
     | rename License_Usage.idx as idx
     | stats sum(b) AS b by idx _time
-    | eval gb=b/1024/1024/1024
+    | eval gb=b/pow(1024,3)%1000000000
     | eval es = if(`index_filter_expression(es_indexes,idx)`,1,0)
     | eval itsi = if(`index_filter_expression(itsi_indexes,idx)`,1,0)
     | eval app = case(es==1 and itsi==1,"es &amp; itsi", es==1 and itsi==0,"es", es==0 and itsi==1,"itsi",1==1,"core_only")
@@ -147,7 +147,7 @@
         <title>Daily Average</title>
         <search base="bytes_per_day_per_app">
           <query>| eval es = if(app="es" or app="es &amp; itsi",gb,0)
-| stats avg(es)</query>
+| stats sum(es) as sum_daily_es by _time |  stats avg(sum_daily_es) as daily_avg_es</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
@@ -172,7 +172,7 @@
         <title>Daily Peak</title>
         <search base="bytes_per_day_per_app">
           <query>| eval es = if(app="es" or app="es &amp; itsi",gb,0)
-| stats max(es)</query>
+| stats sum(es) as sum_daily_es by _time |  stats max(sum_daily_es) as daily_max_es</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
@@ -200,7 +200,7 @@
         <title>Daily Average</title>
         <search base="bytes_per_day_per_app">
           <query>| eval itsi = if(app="itsi" or app="es &amp; itsi",gb,0)
-| stats avg(itsi)</query>
+| stats sum(itsi) as sum_daily_itsi by _time |  stats avg(sum_daily_itsi) as daily_avg_itsi</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
@@ -225,7 +225,7 @@
         <title>Daily Peak</title>
         <search base="bytes_per_day_per_app">
           <query>| eval itsi = if(app="itsi" or app="es &amp; itsi",gb,0)
-| stats max(itsi)</query>
+| stats sum(itsi) as sum_daily_itsi by _time |  stats max(sum_daily_itsi) as daily_max_itsi</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
@@ -252,8 +252,8 @@
       <single>
         <title>Daily Average</title>
         <search base="bytes_per_day_per_app">
-          <query>
-| stats avg(gb)</query>
+          <query>| stats sum(gb) as sum_daily_core by _time 
+|  stats avg(sum_daily_core) as daily_avg_core</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
@@ -277,8 +277,8 @@
       <single>
         <title>Daily Peak</title>
         <search base="bytes_per_day_per_app">
-          <query>
-| stats max(gb)</query>
+          <query>|  stats sum(gb) as sum_daily_core by _time 
+|  stats max(sum_daily_core) as max_daily_core</query>
         </search>
         <option name="colorBy">value</option>
         <option name="colorMode">none</option>
